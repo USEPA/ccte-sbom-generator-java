@@ -1,0 +1,78 @@
+name: 'Generate SBOM'
+description: 'A GitHub Action to generate SBOM using CycloneDX and upload it to Dependency Track.'
+author: 'Your Name or Organization'
+inputs:
+  java_version:
+    description: 'Java version to setup'
+    required: true
+    default: '17'
+  jira_url:
+    description: 'JIRA URL for Maven build'
+    required: true
+  jira_token:
+    description: 'JIRA token for Maven build'
+    required: true
+  server_hostname:
+    description: 'Dependency Track server hostname'
+    required: true
+  api_key:
+    description: 'API key for Dependency Track'
+    required: true
+  project_name:
+    description: 'Project name for Dependency Track'
+    required: true
+  project_version:
+    description: 'Project version for Dependency Track'
+    required: true
+  bom_filename:
+    description: 'Filename for the BOM'
+    required: false
+    default: './bom.xml'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup JDK
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: ${{ inputs.java_version }}
+        cache: 'maven'
+        token: ${{ github.token }}
+
+    - name: Build with Maven
+      run: mvn clean install -Dspring.jira.url=${{ inputs.jira_url }} -Dspring.jira.token=${{ inputs.jira_token }}
+      shell: bash
+
+    - name: Create SBOM with CycloneDX
+      run: mvn org.cyclonedx:cyclonedx-maven-plugin:makeAggregateBom  
+      shell: bash
+
+    - name: Upload bom.xml artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: bom-artifact
+        path: target/bom.xml
+
+    - name: Download bom.xml artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: bom-artifact
+
+    - name: LS -LA
+      run: ls -la
+      shell: bash
+
+    - name: Upload BOM to Dependency Track
+      uses: DependencyTrack/gh-upload-sbom@v2.1.0
+      with:
+        serverHostname: ${{ inputs.server_hostname }}
+        apiKey: ${{ inputs.api_key }}
+        protocol: https
+        projectName: ${{ inputs.project_name }}
+        projectVersion: ${{ inputs.project_version }}
+        bomFilename: ${{ inputs.bom_filename }}
+        autoCreate: true
