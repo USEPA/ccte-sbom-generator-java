@@ -7,11 +7,11 @@ inputs:
     required: true
     default: '17'
   jira_url:
-    description: 'JIRA URL for Maven build'
-    required: true
+    description: 'JIRA URL for Maven build (optional)'
+    required: false
   jira_token:
-    description: 'JIRA token for Maven build'
-    required: true
+    description: 'JIRA token for Maven build (optional)'
+    required: false
   server_hostname:
     description: 'Dependency Track server hostname'
     required: true
@@ -44,7 +44,12 @@ runs:
         token: ${{ github.token }}
 
     - name: Build with Maven
-      run: mvn clean install -Dspring.jira.url=${{ inputs.jira_url }} -Dspring.jira.token=${{ inputs.jira_token }}
+      run: |
+        MAVEN_CMD="mvn clean install"
+        if [ ! -z "${{ inputs.jira_url }}" ] && [ ! -z "${{ inputs.jira_token }}" ]; then
+          MAVEN_CMD="$MAVEN_CMD -Dspring.jira.url=${{ inputs.jira_url }} -Dspring.jira.token=${{ inputs.jira_token }}"
+        fi
+        eval $MAVEN_CMD
       shell: bash
 
     - name: Create SBOM with CycloneDX
