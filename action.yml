@@ -6,10 +6,10 @@ inputs:
     description: 'Java version to setup'
     required: true
     default: '17'
-  maven_version:
+  mvn_version:
     description: 'Maven version to setup'
     required: true
-    default: '3.6.3'  # Set to Maven 3.6.3
+    default: '3.6.3'  # Default Maven version
   jira_url:
     description: 'JIRA URL for Maven build (optional)'
     required: false
@@ -47,25 +47,19 @@ runs:
         cache: 'maven'
         token: ${{ github.token }}
 
-    - name: Clean Up Existing Maven Installation
-      run: |
-        if [ -d "/opt/maven" ]; then
-          sudo rm -rf /opt/maven
-        fi
-      shell: bash
-
     - name: Install Maven
       run: |
-        MAVEN_VERSION=${{ inputs.maven_version }}
-        wget https://archive.apache.org/dist/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz
-        tar -xvzf apache-maven-${MAVEN_VERSION}-bin.tar.gz
-        sudo mv apache-maven-${MAVEN_VERSION} /opt/maven
-      shell: bash
-
-    - name: Set Maven Environment Variables
-      run: |
-        echo "export M2_HOME=/opt/maven" >> $GITHUB_ENV
-        echo "export PATH=\$M2_HOME/bin:\$PATH" >> $GITHUB_ENV
+        MAVEN_VERSION=${{ inputs.mvn_version }}
+        M2_HOME="/opt/apache-maven-$MAVEN_VERSION"
+        
+        # Download and install Maven
+        wget https://mirrors.estointernet.in/apache/maven/maven-3/$MAVEN_VERSION/binaries/apache-maven-$MAVEN_VERSION-bin.tar.gz
+        tar -xvf apache-maven-$MAVEN_VERSION-bin.tar.gz
+        sudo mv apache-maven-$MAVEN_VERSION /opt/
+        
+        # Set environment variables
+        echo "M2_HOME=$M2_HOME" >> $GITHUB_ENV
+        echo "PATH=\$M2_HOME/bin:\$PATH" >> $GITHUB_ENV
       shell: bash
 
     - name: Debug Maven Environment
@@ -73,27 +67,18 @@ runs:
         source $GITHUB_ENV  # Load the environment variables
         echo "M2_HOME is set to: $M2_HOME"
         echo "PATH is set to: $PATH"
-      shell: bash
-
-    - name: Check Maven Version
-      run: |
-        source $GITHUB_ENV  # Load environment variables
-        mvn -v  # This should show Maven 3.6.3
+        mvn -v  # Verify Maven version
       shell: bash
 
     - name: Build with Maven
       run: |
-        source $GITHUB_ENV  # Ensure environment variables are loaded
-        MAVEN_CMD="mvn clean install"
-        if [ ! -z "${{ inputs.jira_url }}" ] && [ ! -z "${{ inputs.jira_token }}" ]; then
-          MAVEN_CMD="$MAVEN_CMD -Dspring.jira.url=${{ inputs.jira_url }} -Dspring.jira.token=${{ inputs.jira_token }}"
-        fi
-        eval $MAVEN_CMD
+        source $GITHUB_ENV
+        mvn clean install
       shell: bash
 
     - name: Create SBOM with CycloneDX
       run: |
-        source $GITHUB_ENV  # Load environment variables
+        source $GITHUB_ENV
         mvn org.cyclonedx:cyclonedx-maven-plugin:makeAggregateBom  
       shell: bash
 
