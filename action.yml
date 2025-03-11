@@ -5,7 +5,7 @@ inputs:
   java_version:
     description: 'Java version to setup'
     required: true
-    default: '11'
+    default: '17'
   maven_version:
     description: 'Maven version to setup'
     required: true
