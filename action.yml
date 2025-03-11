@@ -59,6 +59,7 @@ runs:
       
     - name: Verify Maven Version
       run: mvn -v
+      shell: bash
 
     - name: Build with Maven
       run: |
