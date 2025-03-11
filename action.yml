@@ -52,7 +52,7 @@ runs:
       with:
         path: ~/.m2/repository
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-        restore-keys: |
+        restore-keys: ${{ runner.os }}-maven-
         
     - name: Install Maven
       run: |
