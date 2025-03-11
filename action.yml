@@ -6,6 +6,10 @@ inputs:
     description: 'Java version to setup'
     required: true
     default: '17'
+  maven_version:
+    description: 'Maven version to setup'
+    required: true
+    default: '3.6.3'
   jira_url:
     description: 'JIRA URL for Maven build (optional)'
     required: false
@@ -42,7 +46,7 @@ runs:
         java-version: ${{ inputs.java_version }}
         cache: 'maven'
         token: ${{ github.token }}
-        
+
     - name: Install Maven
       run: |
         MAVEN_VERSION=${{ inputs.maven_version }}
@@ -51,7 +55,8 @@ runs:
         sudo mv apache-maven-${MAVEN_VERSION} /opt/maven
         echo "export M2_HOME=/opt/maven" >> $GITHUB_ENV
         echo "export PATH=\$M2_HOME/bin:\$PATH" >> $GITHUB_ENV
-
+      shell: bash
+      
     - name: Verify Maven Version
       run: mvn -v
 
