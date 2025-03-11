@@ -64,10 +64,17 @@ runs:
         echo "export PATH=\$M2_HOME/bin:\$PATH" >> $GITHUB_ENV
       shell: bash
       
+    - name: Debug Maven Environment
+      run: |
+       echo "M2_HOME is set to: $M2_HOME"
+       echo "PATH is set to: $PATH"
+       mvn -v  # This should show Maven 3.6.3
+      shell: bash
+  
     - name: Verify Maven Version Installed
       run: mvn -v
       shell: bash
-
+    
     - name: Build with Maven
       run: |
         MAVEN_CMD="mvn clean install"
