@@ -46,6 +46,13 @@ runs:
         java-version: ${{ inputs.java_version }}
         cache: 'maven'
         token: ${{ github.token }}
+        
+    - name: Clean Up Existing Maven Installation
+      run: |
+        if [ -d "/opt/maven" ]; then
+          sudo rm -rf /opt/maven
+        fi
+      shell: bash
 
     - name: Install Maven
       run: |
