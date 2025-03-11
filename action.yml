@@ -57,7 +57,7 @@ runs:
         echo "export PATH=\$M2_HOME/bin:\$PATH" >> $GITHUB_ENV
       shell: bash
       
-    - name: Verify Maven Version
+    - name: Verify Maven Version Installed
       run: mvn -v
       shell: bash
 
