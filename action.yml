@@ -6,10 +6,10 @@ inputs:
     description: 'Java version to setup'
     required: true
     default: '17'
-  mvn_version:
+  maven_version:
     description: 'Maven version to setup'
     required: true
-    default: '3.6.3'  # Default Maven version
+    default: '3.6.3'
   jira_url:
     description: 'JIRA URL for Maven build (optional)'
     required: false
@@ -49,37 +49,29 @@ runs:
 
     - name: Install Maven
       run: |
-        MAVEN_VERSION=${{ inputs.mvn_version }}
-        M2_HOME="/opt/apache-maven-$MAVEN_VERSION"
-        
-        # Download and install Maven
-        wget https://mirrors.estointernet.in/apache/maven/maven-3/$MAVEN_VERSION/binaries/apache-maven-$MAVEN_VERSION-bin.tar.gz
-        tar -xvf apache-maven-$MAVEN_VERSION-bin.tar.gz
-        sudo mv apache-maven-$MAVEN_VERSION /opt/
-        
-        # Set environment variables
-        echo "M2_HOME=$M2_HOME" >> $GITHUB_ENV
-        echo "PATH=\$M2_HOME/bin:\$PATH" >> $GITHUB_ENV
+        MAVEN_VERSION=${{ inputs.maven_version }}
+        wget https://archive.apache.org/dist/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz
+        tar -xvzf apache-maven-${MAVEN_VERSION}-bin.tar.gz
+        sudo mv apache-maven-${MAVEN_VERSION} /opt/maven
+        echo "export M2_HOME=/opt/maven" >> $GITHUB_ENV
+        echo "export PATH=\$M2_HOME/bin:\$PATH" >> $GITHUB_ENV
       shell: bash
-
-    - name: Debug Maven Environment
-      run: |
-        source $GITHUB_ENV  # Load the environment variables
-        echo "M2_HOME is set to: $M2_HOME"
-        echo "PATH is set to: $PATH"
-        mvn -v  # Verify Maven version
+      
+    - name: Verify Maven Version
+      run: mvn -v
       shell: bash
-
+      
     - name: Build with Maven
       run: |
-        source $GITHUB_ENV
-        mvn clean install
+        MAVEN_CMD="mvn clean install"
+        if [ ! -z "${{ inputs.jira_url }}" ] && [ ! -z "${{ inputs.jira_token }}" ]; then
+          MAVEN_CMD="$MAVEN_CMD -Dspring.jira.url=${{ inputs.jira_url }} -Dspring.jira.token=${{ inputs.jira_token }}"
+        fi
+        eval $MAVEN_CMD
       shell: bash
 
     - name: Create SBOM with CycloneDX
-      run: |
-        source $GITHUB_ENV
-        mvn org.cyclonedx:cyclonedx-maven-plugin:makeAggregateBom  
+      run: mvn org.cyclonedx:cyclonedx-maven-plugin:makeAggregateBom  
       shell: bash
 
     - name: Upload bom.xml artifact
@@ -97,7 +89,6 @@ runs:
       run: ls -la
       shell: bash
 
-    # Upload the BOM to Dependency Track
     - name: Upload BOM to Dependency Track
       uses: DependencyTrack/gh-upload-sbom@v2.1.0
       with:
