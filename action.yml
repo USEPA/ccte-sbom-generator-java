@@ -52,6 +52,7 @@ runs:
         MAVEN_VERSION=${{ inputs.maven_version }}
         wget https://archive.apache.org/dist/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz
         tar -xvzf apache-maven-${MAVEN_VERSION}-bin.tar.gz
+        sudo rm -rf /opt/maven
         sudo mv apache-maven-${MAVEN_VERSION} /opt/maven
         echo "export M2_HOME=/opt/maven" >> $GITHUB_ENV
         echo "export PATH=\$M2_HOME/bin:\$PATH" >> $GITHUB_ENV
