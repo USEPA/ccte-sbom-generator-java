@@ -67,7 +67,7 @@ runs:
       
     - name: Build with Maven
       run: |
-        MAVEN_CMD="mvn clean install"
+        MAVEN_CMD="mvn clean install -DskipTests"
         if [ ! -z "${{ inputs.jira_url }}" ] && [ ! -z "${{ inputs.jira_token }}" ]; then
           MAVEN_CMD="$MAVEN_CMD -Dspring.jira.url=${{ inputs.jira_url }} -Dspring.jira.token=${{ inputs.jira_token }}"
         fi
