@@ -54,8 +54,15 @@ runs:
         tar -xvzf apache-maven-${MAVEN_VERSION}-bin.tar.gz
         sudo rm -rf /opt/maven
         sudo mv apache-maven-${MAVEN_VERSION} /opt/maven
-        echo "export M2_HOME=/opt/maven" >> $GITHUB_ENV
-        echo "export PATH=\$M2_HOME/bin:\$PATH" >> $GITHUB_ENV
+        echo "M2_HOME=/opt/maven" >> $GITHUB_ENV
+        echo "PATH=/opt/maven/bin:$PATH" >> $GITHUB_ENV
+      shell: bash
+
+    - name: Verify Maven Version
+      run: |
+        echo "Current PATH: $PATH"
+        which mvn
+        mvn -v
       shell: bash
       
     - name: Verify Maven Version
