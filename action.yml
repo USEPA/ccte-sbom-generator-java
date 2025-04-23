@@ -32,6 +32,9 @@ inputs:
     description: 'Filename for the BOM'
     required: false
     default: './bom.xml'
+  working-directory:
+    description: 'Project directory'
+    required: false
 
 runs:
   using: 'composite'
@@ -102,4 +105,5 @@ runs:
         projectName: ${{ inputs.project_name }}
         projectVersion: ${{ inputs.project_version }}
         bomFilename: ${{ inputs.bom_filename }}
+        workingdirectory: ${{ inputs.working-directory }}
         autoCreate: true
