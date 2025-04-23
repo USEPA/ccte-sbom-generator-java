@@ -78,6 +78,7 @@ runs:
       shell: bash
 
     - name: Create SBOM with CycloneDX
+      workingdirectory: ${{ inputs.working-directory }}
       run: mvn org.cyclonedx:cyclonedx-maven-plugin:makeAggregateBom  
       shell: bash
 
@@ -105,5 +106,5 @@ runs:
         projectName: ${{ inputs.project_name }}
         projectVersion: ${{ inputs.project_version }}
         bomFilename: ${{ inputs.bom_filename }}
-        workingdirectory: ${{ inputs.working-directory }}
         autoCreate: true
+        workingdirectory: ${{ inputs.working-directory }}
