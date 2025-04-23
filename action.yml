@@ -32,9 +32,7 @@ inputs:
     description: 'Filename for the BOM'
     required: false
     default: './bom.xml'
-  working-directory:
-    description: 'Project directory'
-    required: false
+
 
 runs:
   using: 'composite'
@@ -78,7 +76,6 @@ runs:
       shell: bash
 
     - name: Create SBOM with CycloneDX
-      workingdirectory: ${{ inputs.working-directory }}
       run: mvn org.cyclonedx:cyclonedx-maven-plugin:makeAggregateBom  
       shell: bash
 
@@ -107,4 +104,3 @@ runs:
         projectVersion: ${{ inputs.project_version }}
         bomFilename: ${{ inputs.bom_filename }}
         autoCreate: true
-        workingdirectory: ${{ inputs.working-directory }}
