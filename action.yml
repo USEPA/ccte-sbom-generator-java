@@ -104,3 +104,11 @@ runs:
         projectVersion: ${{ inputs.project_version }}
         bomFilename: ${{ inputs.bom_filename }}
         autoCreate: true
+
+    - name: Cleanup Maven cache
+      if: always()
+      run: |
+        echo "Cleaning up Maven cache repository directory..."
+        rm -rf ~/.m2/repository
+        echo "Maven cache cleanup completed."
+      shell: bash
