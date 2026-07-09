@@ -109,6 +109,6 @@ runs:
       if: always()
       run: |
         echo "Cleaning up Maven cache repository directory..."
-        rm -rf ~/.m2/repository
+        find ~/.m2/repository -mindepth 1 -mtime +7 -exec rm -rf {} +
         echo "Maven cache cleanup completed."
       shell: bash
