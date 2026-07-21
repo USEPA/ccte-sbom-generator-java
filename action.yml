@@ -107,8 +107,13 @@ runs:
 
     - name: Cleanup Maven cache
       if: always()
-      run: |
-        echo "Cleaning up Maven cache repository directory..."
-        find ~/.m2/repository -mindepth 1 -mtime +7 -exec rm -rf {} +
-        echo "Maven cache cleanup completed."
       shell: bash
+      run: |
+        CACHE="$HOME/.m2/repository"
+        if [ -d "$CACHE" ]; then
+          echo "Cleaning up Maven cache repository directory..."
+          find "$CACHE" -mindepth 1 -mtime +7 -exec rm -rf {} +
+          echo "Maven cache cleanup completed."
+        else
+          echo "Maven cache directory does not exist: $CACHE"
+        fi
